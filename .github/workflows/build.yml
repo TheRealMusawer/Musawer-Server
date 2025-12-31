@@ -29,6 +29,3 @@ jobs:
         with:
           name: GalacticForwarder
           path: build/libs/*.jar
-tasks.withType(Jar) {
-    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
-}

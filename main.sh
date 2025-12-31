@@ -27,7 +27,6 @@ else
   echo "No icon found."
 fi
 
-
 sed -i 's/${SERVER}/'"$SERVER"'/g' velocity.toml
 
 cd plugins
@@ -47,5 +46,40 @@ sed -i 's/${SERVERNAME}/'"$SERVERNAME"'/g' beta.html
 
 cd /
 cd velocity
+
+###############################################
+# STATUS.TXT AUTO-UPDATER (NO JAVA REQUIRED)
+###############################################
+
+# Create update_status.sh if it doesn't exist
+cat << 'EOF' > update_status.sh
+#!/bin/bash
+
+LOG="logs/latest.log"
+OUT="status.txt"
+
+# Count joins and leaves
+JOINS=$(grep -c "logged in with" "$LOG")
+LEAVES=$(grep -c "lost connection" "$LOG")
+
+PLAYERS=$((JOINS - LEAVES))
+if [ $PLAYERS -lt 0 ]; then
+  PLAYERS=0
+fi
+
+echo "players=$PLAYERS" > "$OUT"
+EOF
+
+chmod +x update_status.sh
+
+# Run updater every 5 seconds in background
+while true; do
+  bash update_status.sh
+  sleep 5
+done &
+
+###############################################
+# START VELOCITY
+###############################################
 
 java -Xmx1024M -Xms1024M -jar server.jar

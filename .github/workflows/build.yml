@@ -1,0 +1,33 @@
+name: Build GalacticForwarder
+
+on:
+  push:
+    branches:
+      - main
+      - galacticforwarder
+      - plugin
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v3
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
+      - name: Build with Gradle
+        run: |
+          cd galacticforwarder
+          ./gradlew build
+
+      - name: Upload Plugin JAR
+        uses: actions/upload-artifact@v3
+        with:
+          name: GalacticForwarder
+          path: galacticforwarder/build/libs/*.jar

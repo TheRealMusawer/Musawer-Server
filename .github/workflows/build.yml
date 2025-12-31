@@ -21,11 +21,8 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
 
-      - name: Make Gradle executable
-        run: chmod +x ./gradlew
-
       - name: Build with Gradle
-        run: ./gradlew build
+        run: gradle build
 
       - name: Upload Plugin JAR
         uses: actions/upload-artifact@v4

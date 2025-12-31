@@ -21,13 +21,14 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
 
+      - name: Make Gradle executable
+        run: chmod +x ./gradlew
+
       - name: Build with Gradle
-        run: |
-          cd galacticforwarder
-          ./gradlew build
+        run: ./gradlew build
 
       - name: Upload Plugin JAR
         uses: actions/upload-artifact@v4
         with:
           name: GalacticForwarder
-          path: galacticforwarder/build/libs/*.jar
+          path: build/libs/*.jar

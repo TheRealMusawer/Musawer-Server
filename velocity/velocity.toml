@@ -1,69 +1,92 @@
 # Config version. Do not change this
 config-version = "2.7"
 
-# Bind to all interfaces on Render
+# What port should the proxy be bound to? By default, we'll bind to all addresses on port 25565.
 bind = "0.0.0.0:25567"
 
-# MOTD
-motd = "<#09add3>Galactic Entry Proxy"
+# What should be the MOTD? This gets displayed when the player adds your server to
+# their server list. Only MiniMessage format is accepted.
+motd = "<#09add3>A Velocity Server"
 
-# Max players shown
+# What should we display for the maximum number of players? (Velocity does not support a cap
+# on the number of players online.)
 show-max-players = 5000
 
-# Eaglercraft = offline mode
+# Should we authenticate players with Mojang? By default, this is on.
 online-mode = false
+
+# Should the proxy enforce the new public key security standard? By default, this is on.
 force-key-authentication = false
+
+# If client's ISP/AS sent from this proxy is different from the one from Mojang's
+# authentication server, the player is kicked. This disallows some VPN and proxy
+# connections but is a weak form of protection.
 prevent-client-proxy-connections = false
 
-# MUST be modern for Velocity → Velocity networks
-player-info-forwarding-mode = "modern"
+# Should we forward IP addresses and other data to backend servers?
+# Available options:
+# - "none":        No forwarding will be done. All players will appear to be connecting
+#                  from the proxy and will have offline-mode UUIDs.
+# - "legacy":      Forward player IPs and UUIDs in a BungeeCord-compatible format. Use this
+#                  if you run servers using Minecraft 1.12 or lower.
+# - "bungeeguard": Forward player IPs and UUIDs in a format supported by the BungeeGuard
+#                  plugin. Use this if you run servers using Minecraft 1.12 or lower, and are
+#                  unable to implement network level firewalling (on a shared host).
+# - "modern":      Forward player IPs and UUIDs as part of the login process using
+#                  Velocity's native forwarding. Only applicable for Minecraft 1.13 or higher.
+player-info-forwarding-mode = "legacy"
 
-# Forwarding secret file (you must upload this file)
+# If you are using modern or BungeeGuard IP forwarding, configure a file that contains a unique secret here.
+# The file is expected to be UTF-8 encoded and not empty.
 forwarding-secret-file = "forwarding.secret"
 
+# Announce whether or not your server supports Forge. If you run a modded server, we
+# suggest turning this on.
 announce-forge = false
+
+# If enabled (default is false) and the proxy is in online mode, Velocity will kick
+# any existing player who is online if a duplicate connection attempt is made.
 kick-existing-players = false
 
-# No ping passthrough
-ping-passthrough = "disabled"
+# Should Velocity pass server list ping requests to a backend server?
+# Available options:
+# - "disabled":    No pass-through will be done. The velocity.toml and server-icon.png
+#                  will determine the initial server list ping response.
+# - "mods":        Passes only the mod list from your backend server into the response.
+#                  The first server in your try list (or forced host) with a mod list will be
+#                  used. If no backend servers can be contacted, Velocity won't display any
+#                  mod information.
+# - "description": Uses the description and mod list from the backend server. The first
+#                  server in the try (or forced host) list that responds is used for the
+#                  description and mod list.
+# - "all":         Uses the backend server's response as the proxy response. The Velocity
+#                  configuration is used if no servers could be contacted.
+ping-passthrough = "DISABLED"
+
+# If enabled (default is false), then a sample of the online players on the proxy will be visible
+# when hovering over the player count in the server list.
+# This doesn't have any effect when ping passthrough is set to either "description" or "all".
 sample-players-in-ping = false
+
+# If not enabled (default is true) player IP addresses will be replaced by <ip address withheld> in logs
 enable-player-address-logging = true
 
-###############################################
-# BACKEND SERVERS (your 7 Eagler servers)
-###############################################
-
 [servers]
-p1 = "bachi-eagler.onrender.com:443"
-p2 = "abdullo-eagler.onrender.com:443"
-p3 = "leon-eagler.onrender.com:443"
-p4 = "oneil-eagler.onrender.com:443"
-p5 = "ahmad-eagler.onrender.com:443"
-p6 = "fahad-eagler.onrender.com:443"
-p7 = "azan-eagler.onrender.com:443"
+# Configure your servers here. Each key represents the server's name, and the value
+# represents the IP address of the server to connect to.
+main = "${SERVER}"
 
-# Try order (plugin overrides this anyway)
+# In what order we should try servers when a player logs in or is kicked from a server.
 try = [
-    "p1",
-    "p2",
-    "p3",
-    "p4",
-    "p5",
-    "p6",
-    "p7"
+    "main"
 ]
 
-###############################################
-# Forced hosts (not used but kept clean)
-###############################################
 [forced-hosts]
-"galactic.example.com" = [
-    "p1"
+# Configure your forced hosts here.
+"main.example.com" = [
+    "main"
 ]
 
-###############################################
-# Advanced settings
-###############################################
 [advanced]
 compression-threshold = 256
 compression-level = -1
@@ -86,18 +109,12 @@ kick-after-rate-limited-commands = 0
 tab-complete-rate-limit = 10
 kick-after-rate-limited-tab-completes = 0
 
-###############################################
-# Query settings
-###############################################
 [query]
 enabled = false
 port = 25565
 map = "Velocity"
 show-plugins = false
 
-###############################################
-# Plugin message forwarding
-###############################################
 [plugin-message-forwarding]
 enabled = true
 channels = [

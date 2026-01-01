@@ -3,12 +3,10 @@ plugins {
 }
 
 group = 'com.galactic'
-version = '1.0'
+version = '1.1'
 
 repositories {
     mavenCentral()
-
-    // Official Velocity repo (will work again after Cloudflare outage)
     maven { url = 'https://repo.velocitypowered.com/releases/' }
 }
 
@@ -20,5 +18,15 @@ dependencies {
 java {
     toolchain {
         languageVersion = JavaLanguageVersion.of(17)
+    }
+}
+
+tasks.withType(JavaCompile).configureEach {
+    options.encoding = 'UTF-8'
+}
+
+jar {
+    from('src/main/resources') {
+        include 'velocity-plugin.json'
     }
 }

@@ -8,15 +8,17 @@ import com.velocitypowered.api.proxy.ProxyServer;
 import com.velocitypowered.api.proxy.server.RegisteredServer;
 
 import javax.inject.Inject;
+import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.TimeUnit;
 import java.util.Scanner;
 
 @Plugin(
         id = "galacticforwarder",
         name = "GalacticForwarder",
-        version = "1.0.0",
+        version = "1.1.0",
         authors = {"Mohammad"}
 )
 public class GalacticForwarder {
@@ -28,10 +30,15 @@ public class GalacticForwarder {
         this.server = server;
     }
 
+    // Fetch players with timeout + offline detection
     private int fetchPlayers(String host) {
         try {
             URL url = new URL("https://" + host + "/status.txt");
-            Scanner sc = new Scanner(url.openStream());
+            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+            conn.setConnectTimeout(1500);
+            conn.setReadTimeout(1500);
+
+            Scanner sc = new Scanner(conn.getInputStream());
             while (sc.hasNextLine()) {
                 String line = sc.nextLine();
                 if (line.startsWith("players=")) {
@@ -39,7 +46,8 @@ public class GalacticForwarder {
                 }
             }
         } catch (Exception ignored) {}
-        return 999;
+
+        return -1; // offline
     }
 
     @Subscribe
@@ -57,24 +65,53 @@ public class GalacticForwarder {
         );
 
         CompletableFuture.runAsync(() -> {
-            Map<String, Integer> loads = new HashMap<>();
 
+            Map<String, Integer> online = new HashMap<>();
+
+            // Fetch loads
             for (var entry : backends.entrySet()) {
-                loads.put(entry.getKey(), fetchPlayers(entry.getValue()));
+                int count = fetchPlayers(entry.getValue());
+                if (count >= 0) {
+                    online.put(entry.getKey(), count);
+                }
             }
 
-            Optional<Map.Entry<String, Integer>> best = loads.entrySet()
+            if (online.isEmpty()) {
+                System.out.println("[Forwarder] No backend servers online.");
+                return;
+            }
+
+            // STEP 1: Prefer servers with < 3 players
+            Optional<Map.Entry<String, Integer>> under3 = online.entrySet()
                     .stream()
+                    .filter(e -> e.getValue() < 3)
                     .sorted(Map.Entry.comparingByValue())
                     .findFirst();
 
-            if (best.isEmpty()) return;
+            String targetName;
 
-            String targetName = best.get().getKey();
+            if (under3.isPresent()) {
+                targetName = under3.get().getKey();
+                System.out.println("[Forwarder] Sending " + player.getUsername() +
+                        " to <3 server: " + targetName);
+            } else {
+                // STEP 2: Fallback to lowest player count
+                targetName = online.entrySet()
+                        .stream()
+                        .sorted(Map.Entry.comparingByValue())
+                        .findFirst()
+                        .get()
+                        .getKey();
+
+                System.out.println("[Forwarder] Sending " + player.getUsername() +
+                        " to lowest-load server: " + targetName);
+            }
+
             RegisteredServer target = server.getServer(targetName).orElse(null);
-
             if (target != null) {
                 player.createConnectionRequest(target).connect();
+            } else {
+                System.out.println("[Forwarder] ERROR: Server " + targetName + " not registered in velocity.toml");
             }
         });
     }

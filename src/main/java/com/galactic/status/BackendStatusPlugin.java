@@ -11,23 +11,20 @@ import com.velocitypowered.api.proxy.ProxyServer;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.nio.file.Path;
 
 @Plugin(
         id = "backendstatus",
         name = "BackendStatus",
-        version = "1.0",
+        version = "1.1",
         authors = {"Galactic"}
 )
 public class BackendStatusPlugin {
 
     private final ProxyServer server;
-    private final Path dataDirectory;
 
     @Inject
-    public BackendStatusPlugin(ProxyServer server, Path dataDirectory) {
+    public BackendStatusPlugin(ProxyServer server) {
         this.server = server;
-        this.dataDirectory = dataDirectory;
     }
 
     @Subscribe
@@ -47,7 +44,9 @@ public class BackendStatusPlugin {
 
     private void updateStatus() {
         int players = server.getPlayerCount();
-        File file = dataDirectory.resolve("status.txt").toFile();
+
+        // Write to Render web root
+        File file = new File("status.txt");
 
         try (FileWriter writer = new FileWriter(file, false)) {
             writer.write("players=" + players);

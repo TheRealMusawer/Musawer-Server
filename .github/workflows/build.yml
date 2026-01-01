@@ -21,12 +21,17 @@ jobs:
         with:
           distribution: 'temurin'
           java-version: '17'
+          cache: gradle
 
-      - name: Build with Gradle (system Gradle)
-        run: gradle build --stacktrace
+      - name: Make Gradle wrapper executable
+        run: chmod +x gradlew
+
+      - name: Build with Gradle Wrapper
+        run: ./gradlew clean build --stacktrace
 
       - name: Upload built JAR
         uses: actions/upload-artifact@v4
         with:
           name: backendstatus-jar
           path: build/libs/*.jar
+          retention-days: 30

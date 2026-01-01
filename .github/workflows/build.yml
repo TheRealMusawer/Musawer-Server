@@ -21,7 +21,6 @@ jobs:
         with:
           distribution: 'temurin'
           java-version: '17'
-          cache: gradle
 
       - name: Build with system Gradle
         run: gradle clean build --stacktrace

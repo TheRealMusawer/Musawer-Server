@@ -1,81 +1,58 @@
-package com.galactic.forwarder;
+package com.galactic.status;
 
+import com.google.inject.Inject;
 import com.velocitypowered.api.event.Subscribe;
-import com.velocitypowered.api.event.connection.PostLoginEvent;
+import com.velocitypowered.api.event.player.PlayerChooseInitialServerEvent;
+import com.velocitypowered.api.event.player.ServerConnectedEvent;
+import com.velocitypowered.api.event.player.DisconnectEvent;
 import com.velocitypowered.api.plugin.Plugin;
-import com.velocitypowered.api.proxy.Player;
 import com.velocitypowered.api.proxy.ProxyServer;
-import com.velocitypowered.api.proxy.server.RegisteredServer;
 
-import javax.inject.Inject;
-import java.net.URL;
-import java.util.*;
-import java.util.concurrent.CompletableFuture;
-import java.util.Scanner;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.nio.file.Path;
 
 @Plugin(
-        id = "galacticforwarder",
-        name = "GalacticForwarder",
-        version = "1.0.0",
-        authors = {"Mohammad"}
+        id = "backendstatus",
+        name = "BackendStatus",
+        version = "1.0",
+        authors = {"Galactic"}
 )
-public class GalacticForwarder {
+public class BackendStatusPlugin {
 
     private final ProxyServer server;
+    private final Path dataDirectory;
 
     @Inject
-    public GalacticForwarder(ProxyServer server) {
+    public BackendStatusPlugin(ProxyServer server, Path dataDirectory) {
         this.server = server;
-    }
-
-    private int fetchPlayers(String host) {
-        try {
-            URL url = new URL("https://" + host + "/status.txt");
-            Scanner sc = new Scanner(url.openStream());
-            while (sc.hasNextLine()) {
-                String line = sc.nextLine();
-                if (line.startsWith("players=")) {
-                    return Integer.parseInt(line.replace("players=", "").trim());
-                }
-            }
-        } catch (Exception ignored) {}
-        return 999;
+        this.dataDirectory = dataDirectory;
     }
 
     @Subscribe
-    public void onJoin(PostLoginEvent event) {
-        Player player = event.getPlayer();
+    public void onJoin(ServerConnectedEvent e) {
+        updateStatus();
+    }
 
-        Map<String, String> backends = Map.of(
-                "p1", "bachi-eagler.onrender.com",
-                "p2", "abdullo-eagler.onrender.com",
-                "p3", "leon-eagler.onrender.com",
-                "p4", "oneil-eagler.onrender.com",
-                "p5", "ahmad-eagler.onrender.com",
-                "p6", "fahad-eagler.onrender.com",
-                "p7", "azan-eagler.onrender.com"
-        );
+    @Subscribe
+    public void onLeave(DisconnectEvent e) {
+        updateStatus();
+    }
 
-        CompletableFuture.runAsync(() -> {
-            Map<String, Integer> loads = new HashMap<>();
+    @Subscribe
+    public void onInitial(PlayerChooseInitialServerEvent e) {
+        updateStatus();
+    }
 
-            for (var entry : backends.entrySet()) {
-                loads.put(entry.getKey(), fetchPlayers(entry.getValue()));
-            }
+    private void updateStatus() {
+        int players = server.getPlayerCount();
+        File file = dataDirectory.resolve("status.txt").toFile();
 
-            Optional<Map.Entry<String, Integer>> best = loads.entrySet()
-                    .stream()
-                    .sorted(Map.Entry.comparingByValue())
-                    .findFirst();
-
-            if (best.isEmpty()) return;
-
-            String targetName = best.get().getKey();
-            RegisteredServer target = server.getServer(targetName).orElse(null);
-
-            if (target != null) {
-                player.createConnectionRequest(target).connect();
-            }
-        });
+        try (FileWriter writer = new FileWriter(file, false)) {
+            writer.write("players=" + players);
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        }
     }
 }

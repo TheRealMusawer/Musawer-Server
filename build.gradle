@@ -7,7 +7,9 @@ version = '1.0'
 
 repositories {
     mavenCentral()
-    maven { url = 'https://repo.papermc.io/repository/maven-public/' }
+
+    // Official Velocity repo (will work again after Cloudflare outage)
+    maven { url = 'https://repo.velocitypowered.com/releases/' }
 }
 
 dependencies {

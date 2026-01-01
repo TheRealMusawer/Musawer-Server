@@ -5,6 +5,7 @@ on:
     branches:
       - main
       - entry-proxy
+      - backendstatus
   pull_request:
 
 jobs:

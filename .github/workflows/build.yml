@@ -23,11 +23,8 @@ jobs:
           java-version: '17'
           cache: gradle
 
-      - name: Make Gradle wrapper executable
-        run: chmod +x gradlew
-
-      - name: Build with Gradle Wrapper
-        run: ./gradlew clean build --stacktrace
+      - name: Build with system Gradle
+        run: gradle clean build --stacktrace
 
       - name: Upload built JAR
         uses: actions/upload-artifact@v4

@@ -22,11 +22,8 @@ jobs:
           distribution: 'temurin'
           java-version: '17'
 
-      - name: Grant execute permission for Gradle
-        run: chmod +x ./gradlew
-
-      - name: Build with Gradle
-        run: ./gradlew build --stacktrace
+      - name: Build with Gradle (system Gradle)
+        run: gradle build --stacktrace
 
       - name: Upload built JAR
         uses: actions/upload-artifact@v4

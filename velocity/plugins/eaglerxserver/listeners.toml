@@ -66,8 +66,8 @@
         [listener_list.ratelimit.motd]
             enable = true
             period = 30
-            limit = 5
-            limit_lockout = 15
+            limit = 20
+            limit_lockout = 40
             lockout_duration = 300
 
         [listener_list.ratelimit.query]

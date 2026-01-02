@@ -1,64 +1,74 @@
 #!/bin/bash
-echo starting...
+echo "Starting..."
 cd velocity
 
+###############################################
+# STATIC VALUES (SAFE)
+###############################################
+
 MTOD="§7§lMusawer Server §4• §cCome Play Now §8§lBuilt By §4Musawer"
-SERVERNAME="${SERVERNAME:-'Musawer Server'}"
+SERVERNAME="${SERVERNAME:-Musawer Server}"
+
+###############################################
+# ICON HANDLING
+###############################################
 
 if [ -n "$ICON" ]; then
   echo "Downloading server icon from $ICON..."
   curl -fsSL "$ICON" -o plugins/eaglerxserver/server-icon.png
   if [ $? -eq 0 ]; then
     echo "Icon downloaded successfully."
-    echo "Resizing and converting to 64x64 PNG using ffmpeg..."
+    echo "Resizing to 64x64 using ffmpeg..."
 
-    ffmpeg -i "plugins/eaglerxserver/server-icon.png" -vf scale=64:64 -frames:v 1 -update 1 "plugins/eaglerxserver/server-icon.png"
+    ffmpeg -i "plugins/eaglerxserver/server-icon.png" -vf scale=64:64 -frames:v 1 "plugins/eaglerxserver/server-icon.png"
 
-    if [ $? -eq 0 ]; then
-      mv plugins/eaglerxserver/server-icon.tmp.png plugins/eaglerxserver/server-icon.png
-      echo "Icon resized and saved."
-    else
-      echo "Failed to resize or convert icon with ffmpeg."
-    fi
+    echo "Icon resized."
   else
     echo "Failed to download icon."
   fi
-else 
+else
   echo "No icon found."
 fi
 
-sed -i 's/${SERVER}/'"$SERVER"'/g' velocity.toml
-
-cd plugins
-cd eaglerxserver
-
-sed -i "s|\${MTOD}|$MTOD|g" listeners.toml
-
-cd /
-cd velocity
-cd plugins
-cd eaglerweb
-cd web
-
-sed -i 's/${SERVERNAME}/'"$SERVERNAME"'/g' game.html
-sed -i 's/${SERVERNAME}/'"$SERVERNAME"'/g' wasm.html
-sed -i 's/${SERVERNAME}/'"$SERVERNAME"'/g' beta.html
-
-cd /
-cd velocity
-
 ###############################################
-# STATUS.TXT AUTO-UPDATER (NO JAVA REQUIRED)
+# PATCH LISTENERS.TOML (SAFE)
 ###############################################
 
-# Create update_status.sh if it doesn't exist
+cd plugins/eaglerxserver
+
+# Only replace MTOD if placeholder exists
+if grep -q "\${MTOD}" listeners.toml; then
+  sed -i "s|\${MTOD}|$MTOD|g" listeners.toml
+fi
+
+###############################################
+# PATCH WEB FILES (SAFE)
+###############################################
+
+cd ../../eaglerweb/web
+
+for f in game.html wasm.html beta.html; do
+  if grep -q "\${SERVERNAME}" "$f"; then
+    sed -i "s|\${SERVERNAME}|$SERVERNAME|g" "$f"
+  fi
+done
+
+###############################################
+# RETURN TO VELOCITY ROOT
+###############################################
+
+cd ../../..
+
+###############################################
+# STATUS.TXT AUTO-UPDATER
+###############################################
+
 cat << 'EOF' > update_status.sh
 #!/bin/bash
 
 LOG="logs/latest.log"
 OUT="status.txt"
 
-# Count joins and leaves
 JOINS=$(grep -c "logged in with" "$LOG")
 LEAVES=$(grep -c "lost connection" "$LOG")
 

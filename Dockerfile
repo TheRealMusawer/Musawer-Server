@@ -15,8 +15,8 @@ COPY velocity/ velocity/
 COPY main.sh main.sh
 RUN chmod +x main.sh
 
-# ---- Expose the port your supervisor listens on ----
+# ---- Expose the port your Velocity proxy listens on ----
 EXPOSE 25577
 
-# ---- Start the supervisor, NOT Velocity ----
+# ---- Start the proxy using your script ----
 CMD ["./main.sh"]

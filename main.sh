@@ -4,7 +4,7 @@ echo "Starting..."
 ###############################################
 # ENTER velocity/ FOLDER
 ###############################################
-cd velocity || exit 1
+cd velocity || { echo "velocity folder missing"; exit 1; }
 
 ###############################################
 # STATIC VALUES
@@ -17,6 +17,7 @@ SERVERNAME="${SERVERNAME:-Musawer Server}"
 ###############################################
 if [ -n "$ICON" ]; then
   echo "Downloading server icon from $ICON..."
+  mkdir -p plugins/eaglerxserver
   curl -fsSL "$ICON" -o plugins/eaglerxserver/server-icon.png
   if [ $? -eq 0 ]; then
     echo "Icon downloaded successfully."
@@ -32,27 +33,22 @@ fi
 ###############################################
 # PATCH LISTENERS.TOML
 ###############################################
-cd plugins/eaglerxserver || exit 1
-
-if grep -q "\${MTOD}" listeners.toml; then
-  sed -i "s|\${MTOD}|$MTOD|g" listeners.toml
+if [ -f plugins/eaglerxserver/listeners.toml ]; then
+  sed -i "s|\${MTOD}|$MTOD|g" plugins/eaglerxserver/listeners.toml
 fi
 
 ###############################################
 # PATCH WEB FILES
 ###############################################
-cd ../eaglerweb/web || exit 1
-
-for f in game.html wasm.html beta.html; do
-  if grep -q "\${SERVERNAME}" "$f"; then
-    sed -i "s|\${SERVERNAME}|$SERVERNAME|g" "$f"
-  fi
-done
-
-###############################################
-# RETURN TO velocity ROOT
-###############################################
-cd ../../../
+if [ -d plugins/eaglerweb/web ]; then
+  cd plugins/eaglerweb/web || exit 1
+  for f in game.html wasm.html beta.html; do
+    if [ -f "$f" ]; then
+      sed -i "s|\${SERVERNAME}|$SERVERNAME|g" "$f"
+    fi
+  done
+  cd ../../../
+fi
 
 ###############################################
 # STATUS.TXT AUTO-UPDATER
@@ -62,6 +58,11 @@ cat << 'EOF' > update_status.sh
 
 LOG="logs/latest.log"
 OUT="status.txt"
+
+if [ ! -f "$LOG" ]; then
+  echo "players=0" > "$OUT"
+  exit 0
+fi
 
 JOINS=$(grep -c "logged in with" "$LOG")
 LEAVES=$(grep -c "lost connection" "$LOG")
@@ -76,6 +77,7 @@ EOF
 
 chmod +x update_status.sh
 
+# Run updater in background
 while true; do
   bash update_status.sh
   sleep 5
@@ -85,4 +87,6 @@ done &
 # START VELOCITY
 ###############################################
 echo "Launching Velocity..."
-java -Xmx1024M -Xms1024M -jar server.jar
+
+# IMPORTANT: exec replaces the shell so Render detects the process
+exec java -Xms512M -Xmx512M -jar server.jar

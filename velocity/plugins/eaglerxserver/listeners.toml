@@ -59,8 +59,8 @@
         [listener_list.ratelimit.login]
             enable = true
             period = 50
-            limit = 5
-            limit_lockout = 10
+            limit = 20
+            limit_lockout = 40
             lockout_duration = 300
 
         [listener_list.ratelimit.motd]

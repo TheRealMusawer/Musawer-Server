@@ -1,34 +1,22 @@
 FROM eclipse-temurin:17-jre AS runtime
 
-# ---- Layer 1: System dependencies ----
+# ---- System dependencies ----
 RUN apt-get update && \
     apt-get install -y --no-install-recommends ffmpeg && \
     rm -rf /var/lib/apt/lists/*
 
-# ---- Layer 2: Set working directory ----
+# ---- Working directory ----
 WORKDIR /app
 
-# ---- Layer 3: Copy Velocity core configs ----
-COPY velocity/velocity.toml velocity/velocity.toml
-COPY velocity/forwarding.secret velocity/forwarding.secret
+# ---- Copy ENTIRE velocity folder (your real proxy) ----
+COPY velocity/ velocity/
 
-# ---- Layer 4: Copy plugin configs ----
-COPY velocity/plugins/eaglerxserver/ velocity/plugins/eaglerxserver/
-COPY velocity/plugins/eaglerweb/web/ velocity/plugins/eaglerweb/web/
-
-# ---- Layer 5: Copy Velocity runtime files ----
-COPY velocity/server.jar velocity/server.jar
-COPY velocity/server-icon.png velocity/server-icon.png
-
-# ---- Layer 6: Copy scripts ----
+# ---- Copy main.sh (your real entrypoint) ----
 COPY main.sh main.sh
 RUN chmod +x main.sh
 
-# ---- IMPORTANT: Do NOT copy the entire repo ----
-# COPY . .   <-- REMOVED (this caused 4–10GB cache bloat)
-
-# ---- Expose Velocity port ----
+# ---- Expose the port your supervisor listens on ----
 EXPOSE 25577
 
-# ---- Start script ----
+# ---- Start the supervisor, NOT Velocity ----
 CMD ["./main.sh"]

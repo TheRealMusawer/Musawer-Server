@@ -22,7 +22,7 @@ announce-forge = false
 kick-existing-players = false
 
 # Do NOT pass backend MOTD — Eagler handles its own MOTD
-ping-passthrough = "disabled"
+ping-passthrough = "description"
 
 sample-players-in-ping = false
 enable-player-address-logging = true

@@ -1,27 +1,26 @@
 #!/bin/bash
 echo "Starting..."
-cd velocity
 
 ###############################################
-# STATIC VALUES (SAFE)
+# ENTER velocity/ FOLDER
 ###############################################
+cd velocity || exit 1
 
+###############################################
+# STATIC VALUES
+###############################################
 MTOD="§7§lMusawer Server §4• §cCome Play Now §8§lBuilt By §4Musawer"
 SERVERNAME="${SERVERNAME:-Musawer Server}"
 
 ###############################################
 # ICON HANDLING
 ###############################################
-
 if [ -n "$ICON" ]; then
   echo "Downloading server icon from $ICON..."
   curl -fsSL "$ICON" -o plugins/eaglerxserver/server-icon.png
   if [ $? -eq 0 ]; then
     echo "Icon downloaded successfully."
-    echo "Resizing to 64x64 using ffmpeg..."
-
     ffmpeg -i "plugins/eaglerxserver/server-icon.png" -vf scale=64:64 -frames:v 1 "plugins/eaglerxserver/server-icon.png"
-
     echo "Icon resized."
   else
     echo "Failed to download icon."
@@ -31,21 +30,18 @@ else
 fi
 
 ###############################################
-# PATCH LISTENERS.TOML (SAFE)
+# PATCH LISTENERS.TOML
 ###############################################
+cd plugins/eaglerxserver || exit 1
 
-cd plugins/eaglerxserver
-
-# Only replace MTOD if placeholder exists
 if grep -q "\${MTOD}" listeners.toml; then
   sed -i "s|\${MTOD}|$MTOD|g" listeners.toml
 fi
 
 ###############################################
-# PATCH WEB FILES (SAFE)
+# PATCH WEB FILES
 ###############################################
-
-cd ../../eaglerweb/web
+cd ../eaglerweb/web || exit 1
 
 for f in game.html wasm.html beta.html; do
   if grep -q "\${SERVERNAME}" "$f"; then
@@ -54,15 +50,13 @@ for f in game.html wasm.html beta.html; do
 done
 
 ###############################################
-# RETURN TO VELOCITY ROOT
+# RETURN TO velocity ROOT
 ###############################################
-
-cd ../../..
+cd ../../../
 
 ###############################################
 # STATUS.TXT AUTO-UPDATER
 ###############################################
-
 cat << 'EOF' > update_status.sh
 #!/bin/bash
 
@@ -82,7 +76,6 @@ EOF
 
 chmod +x update_status.sh
 
-# Run updater every 5 seconds in background
 while true; do
   bash update_status.sh
   sleep 5
@@ -91,5 +84,5 @@ done &
 ###############################################
 # START VELOCITY
 ###############################################
-
+echo "Launching Velocity..."
 java -Xmx1024M -Xms1024M -jar server.jar

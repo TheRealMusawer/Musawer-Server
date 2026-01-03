@@ -28,12 +28,11 @@ sample-players-in-ping = false
 enable-player-address-logging = true
 
 [servers]
-main = { address = "node00.mycuba.xyz:25594", motd = "Main Server" }
+main = "node00.mycuba.xyz:25594"
 
 try = [
     "main"
 ]
-
 
 [forced-hosts]
 "main.example.com" = [

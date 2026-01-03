@@ -10,7 +10,7 @@ motd = "<#09add3>Musawer Velocity Proxy"
 show-max-players = 5000
 
 online-mode = false
-force-key-authentication = true
+force-key-authentication = false
 prevent-client-proxy-connections = false
 
 # Eagler requires legacy forwarding

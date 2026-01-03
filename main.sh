@@ -1,92 +1,51 @@
 #!/bin/bash
-echo "Starting..."
+echo starting...
+cd velocity
 
-###############################################
-# ENTER velocity/ FOLDER
-###############################################
-cd velocity || { echo "velocity folder missing"; exit 1; }
-
-###############################################
-# STATIC VALUES
-###############################################
 MTOD="§7§lMusawer Server §4• §cCome Play Now §8§lBuilt By §4Musawer"
-SERVERNAME="${SERVERNAME:-Musawer Server}"
+SERVERNAME="${SERVERNAME:-'Musawer Server'}"
 
-###############################################
-# ICON HANDLING
-###############################################
 if [ -n "$ICON" ]; then
   echo "Downloading server icon from $ICON..."
-  mkdir -p plugins/eaglerxserver
   curl -fsSL "$ICON" -o plugins/eaglerxserver/server-icon.png
   if [ $? -eq 0 ]; then
     echo "Icon downloaded successfully."
-    ffmpeg -i "plugins/eaglerxserver/server-icon.png" -vf scale=64:64 -frames:v 1 "plugins/eaglerxserver/server-icon.png"
-    echo "Icon resized."
+    echo "Resizing and converting to 64x64 PNG using ffmpeg..."
+
+    ffmpeg -i "plugins/eaglerxserver/server-icon.png" -vf scale=64:64 -frames:v 1 -update 1 "plugins/eaglerxserver/server-icon.png"
+
+    if [ $? -eq 0 ]; then
+      mv plugins/eaglerxserver/server-icon.tmp.png plugins/eaglerxserver/server-icon.png
+      echo "Icon resized and saved."
+    else
+      echo "Failed to resize or convert icon with ffmpeg."
+    fi
   else
     echo "Failed to download icon."
   fi
-else
+else 
   echo "No icon found."
 fi
 
-###############################################
-# PATCH LISTENERS.TOML
-###############################################
-if [ -f plugins/eaglerxserver/listeners.toml ]; then
-  sed -i "s|\${MTOD}|$MTOD|g" plugins/eaglerxserver/listeners.toml
-fi
 
-###############################################
-# PATCH WEB FILES
-###############################################
-if [ -d plugins/eaglerweb/web ]; then
-  cd plugins/eaglerweb/web || exit 1
-  for f in game.html wasm.html beta.html; do
-    if [ -f "$f" ]; then
-      sed -i "s|\${SERVERNAME}|$SERVERNAME|g" "$f"
-    fi
-  done
-  cd ../../../
-fi
+sed -i 's/${SERVER}/'"$SERVER"'/g' velocity.toml
 
-###############################################
-# STATUS.TXT AUTO-UPDATER
-###############################################
-cat << 'EOF' > update_status.sh
-#!/bin/bash
+cd plugins
+cd eaglerxserver
 
-LOG="logs/latest.log"
-OUT="status.txt"
+sed -i "s|\${MTOD}|$MTOD|g" listeners.toml
 
-if [ ! -f "$LOG" ]; then
-  echo "players=0" > "$OUT"
-  exit 0
-fi
+cd /
+cd velocity
+cd plugins
+cd eaglerweb
+cd web
 
-JOINS=$(grep -c "logged in with" "$LOG")
-LEAVES=$(grep -c "lost connection" "$LOG")
+sed -i 's/${SERVERNAME}/'"$SERVERNAME"'/g' game.html
+sed -i 's/${SERVERNAME}/'"$SERVERNAME"'/g' wasm.html
+sed -i 's/${SERVERNAME}/'"$SERVERNAME"'/g' beta.html
 
-PLAYERS=$((JOINS - LEAVES))
-if [ $PLAYERS -lt 0 ]; then
-  PLAYERS=0
-fi
+cd /
+cd velocity
 
-echo "players=$PLAYERS" > "$OUT"
-EOF
-
-chmod +x update_status.sh
-
-# Run updater in background
-while true; do
-  bash update_status.sh
-  sleep 5
-done &
-
-###############################################
-# START VELOCITY
-###############################################
-echo "Launching Velocity..."
-
-# IMPORTANT: exec replaces the shell so Render detects the process
-exec java -Xms512M -Xmx512M -jar server.jar
+java -Xmx1024M -Xms1024M -jar server.jar

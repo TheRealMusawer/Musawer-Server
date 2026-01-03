@@ -28,12 +28,12 @@ sample-players-in-ping = false
 enable-player-address-logging = true
 
 [servers]
-# ⭐ FIXED: Hard‑coded backend address — no more ${SERVER}
-main = "node00.mycuba.xyz:25594"
+main = { address = "node00.mycuba.xyz:25594", motd = "Main Server" }
 
 try = [
     "main"
 ]
+
 
 [forced-hosts]
 "main.example.com" = [

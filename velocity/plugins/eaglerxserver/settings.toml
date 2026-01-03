@@ -59,7 +59,7 @@ enable_backend_rpc_api = false
 # Default value is false, if "modernized" plugin channel names compatible with
 # Minecraft 1.13+ should be used for EaglerXBackendRPC plugin message packets.
 # Enable this if you use Minecraft 1.13+ on your backend Spigot servers.
-use_modernized_channel_names = false
+use_modernized_channel_names = true
 # Default value is -1, allows you to set a separate view distance to use for
 # Eaglercraft players, must be between 3 an 15 chunks or -1 to use the same view
 # distance as vanilla players. Only supported on Paper, if EaglerXServer is

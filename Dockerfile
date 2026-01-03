@@ -1,22 +1,16 @@
-FROM eclipse-temurin:17-jre AS runtime
+# Use an official base image with Java
+FROM eclipse-temurin:17-jre
 
-# ---- System dependencies ----
 RUN apt-get update && \
-    apt-get install -y --no-install-recommends ffmpeg && \
+    apt-get install -y ffmpeg && \
+    apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
-# ---- Working directory ----
-WORKDIR /app
+# Copy everything from the current directory to /app in the container
+COPY . .
 
-# ---- Copy ENTIRE velocity folder (your real proxy) ----
-COPY velocity/ velocity/
-
-# ---- Copy main.sh (your real entrypoint) ----
-COPY main.sh main.sh
+# Make sure main.sh is executable
 RUN chmod +x main.sh
 
-# ---- Expose the port your Velocity proxy listens on ----
-EXPOSE 25577
-
-# ---- Start the proxy using your script ----
+# Command to run the main.sh script
 CMD ["./main.sh"]

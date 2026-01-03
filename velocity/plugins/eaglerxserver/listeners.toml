@@ -1,22 +1,31 @@
 # Defines the list of listeners to enable Eaglercraft support on, each listener's
 # address must be the address of a listener you've also configured in the base
 # Velocity server, unless the listener's cloning option is also enabled.
+
 [[listener_list]]
     # The unique name to use when identifying this listener
     listener_name = "listener0"
-    # The address of the listener to inject into.
+
+    # The address of the listener to inject into (Velocity listener)
     inject_address = "0.0.0.0:25567"
+
     velocity_clone_listener = false
     dual_stack = true
+
+    # Forwarding settings
     forward_ip = false
     forward_ip_header = "X-Real-IP"
     forward_secret = false
     forward_secret_header = "X-Eagler-Secret"
     forward_secret_file = "eagler_forwarding.secret"
     spoof_player_address_forwarded = true
+
     dual_stack_haproxy_detection = false
     force_disable_haproxy = false
+
     redirect_legacy_clients_to = ""
+
+    # MOTD + server list settings
     server_icon = "server-icon.png"
     server_motd = ["${MTOD}"]
     allow_motd = true
@@ -24,12 +33,16 @@
     show_motd_player_list = true
     allow_cookie_revoke_query = true
 
-    # ⭐⭐⭐ THE MISSING BLOCK — THIS FIXES THE MOTD ERROR ⭐⭐⭐
-    [listener_list.backend]
-    type = "velocity"
-    server = "main"
-    # ⭐⭐⭐ END OF FIX ⭐⭐⭐
+    # ⭐ Disable the “Please add the server to your server list!” requirement
+    require_motd = false
+    require_server_list = false
 
+    # Backend routing (Velocity)
+    [listener_list.backend]
+        type = "velocity"
+        server = "main"
+
+    # TLS settings
     [listener_list.tls_config]
         enable_tls = false
         require_tls = true
@@ -39,6 +52,7 @@
         tls_private_key_password = ""
         tls_auto_refresh_cert = true
 
+    # MOTD cache settings
     [listener_list.request_motd_cache]
         cache_ttl = 7200
         online_server_list_animation = false
@@ -46,6 +60,7 @@
         online_server_list_trending = true
         online_server_list_portfolios = true
 
+    # Ratelimits
     [listener_list.ratelimit]
         disable_ratelimit = ["127.0.0.0/8", "::1/128"]
 

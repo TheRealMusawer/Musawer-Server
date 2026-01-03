@@ -43,7 +43,7 @@ cd plugins/eaglerxserver
 sed -i "s|\${MTOD}|$MTOD|g" listeners.toml
 
 # Update EaglerWeb HTML branding
-cd ../../eaglerweb/web
+cd ../eaglerweb/web
 sed -i 's/${SERVERNAME}/'"$SERVERNAME"'/g' game.html
 sed -i 's/${SERVERNAME}/'"$SERVERNAME"'/g' wasm.html
 sed -i 's/${SERVERNAME}/'"$SERVERNAME"'/g' beta.html

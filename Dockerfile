@@ -10,10 +10,11 @@ RUN apt-get update && \
 # Set working directory
 WORKDIR /app
 
-# Copy ONLY the files that actually change
+# Copy ONLY the files you want stored in the image
 COPY main.sh .
-COPY config/ ./config/
-COPY scripts/ ./scripts/
+COPY velocity/ ./velocity/
+COPY eagler/ ./eagler/        # optional if you have EaglerXServer files
+COPY scripts/ ./scripts/      # optional if you have helper scripts
 
 # Make sure main.sh is executable
 RUN chmod +x main.sh
@@ -21,7 +22,7 @@ RUN chmod +x main.sh
 # Create persistent storage directory
 RUN mkdir -p /data
 
-# Use /data as the server root
+# Use /data as the server root (Render persistent disk)
 VOLUME ["/data"]
 
 # Start the server

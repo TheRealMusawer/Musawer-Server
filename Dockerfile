@@ -10,17 +10,7 @@ RUN apt-get update && \
 # Set working directory
 WORKDIR /app
 
-# Copy core files that rarely change FIRST (keeps Docker cache alive)
-COPY main.sh .
-COPY forwarding.secret .
-
-# Copy Velocity config folder structure
-COPY velocity/velocity.toml ./velocity/velocity.toml
-
-# Copy Velocity plugins
-COPY velocity/plugins ./velocity/plugins
-
-# Copy the rest LAST (only this layer rebuilds when you change files)
+# Copy everything (safe because your structure is dynamic)
 COPY . .
 
 # Make sure main.sh is executable

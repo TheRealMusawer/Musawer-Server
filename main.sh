@@ -36,7 +36,7 @@ else
 fi
 
 # Replace ${SERVER} in velocity.toml
-sed -i 's/${SERVER}/'"$SERVER"'/g' velocity.toml
+sed -i "s|\${SERVER}|$SERVER|g" velocity.toml
 
 # Update listeners.toml MOTD
 cd plugins/eaglerxserver

@@ -10,11 +10,19 @@ RUN apt-get update && \
 # Set working directory
 WORKDIR /app
 
-# Copy everything (safe because your structure is dynamic)
-COPY . .
+# Copy ONLY the files that actually change
+COPY main.sh .
+COPY config/ ./config/
+COPY scripts/ ./scripts/
 
 # Make sure main.sh is executable
 RUN chmod +x main.sh
 
-# Command to run the main.sh script
+# Create persistent storage directory
+RUN mkdir -p /data
+
+# Use /data as the server root
+VOLUME ["/data"]
+
+# Start the server
 CMD ["./main.sh"]

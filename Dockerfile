@@ -11,18 +11,21 @@ RUN apt-get update && \
 WORKDIR /app
 
 # Copy ONLY the files you want stored in the image
+# (These update when you push to GitHub)
 COPY main.sh .
 COPY velocity/ ./velocity/
-COPY eagler/ ./eagler/        # optional if you have EaglerXServer files
-COPY scripts/ ./scripts/      # optional if you have helper scripts
+COPY scripts/ ./scripts/
+COPY eagler/ ./eagler/
+COPY config/ ./config/
 
 # Make sure main.sh is executable
 RUN chmod +x main.sh
 
 # Create persistent storage directory
+# (Render keeps this forever)
 RUN mkdir -p /data
 
-# Use /data as the server root (Render persistent disk)
+# Mark /data as persistent volume
 VOLUME ["/data"]
 
 # Start the server

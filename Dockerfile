@@ -2,19 +2,15 @@
 FROM eclipse-temurin:17-jre
 
 RUN apt-get update && \
-    apt-get install -y ffmpeg netcat-openbsd && \
+    apt-get install -y ffmpeg && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
-WORKDIR /app
+# Copy everything from the current directory to /app in the container
+COPY . .
 
-COPY main.sh .
-COPY velocity/ ./velocity/
-
+# Make sure main.sh is executable
 RUN chmod +x main.sh
 
-RUN mkdir -p /data
-
-VOLUME ["/data"]
-
+# Command to run the main.sh script
 CMD ["./main.sh"]

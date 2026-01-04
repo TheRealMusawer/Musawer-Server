@@ -55,11 +55,11 @@ eagler_players_vanilla_skin = ""
 enable_authentication_events = false
 # Default value is false, if support for servers running the EaglerXBackendRPC
 # plugin should be enabled or not.
-enable_backend_rpc_api = true
+enable_backend_rpc_api = false
 # Default value is false, if "modernized" plugin channel names compatible with
 # Minecraft 1.13+ should be used for EaglerXBackendRPC plugin message packets.
 # Enable this if you use Minecraft 1.13+ on your backend Spigot servers.
-use_modernized_channel_names = true
+use_modernized_channel_names = false
 # Default value is -1, allows you to set a separate view distance to use for
 # Eaglercraft players, must be between 3 an 15 chunks or -1 to use the same view
 # distance as vanilla players. Only supported on Paper, if EaglerXServer is

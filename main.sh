@@ -48,4 +48,5 @@ sed -i 's/${SERVERNAME}/'"$SERVERNAME"'/g' beta.html
 cd /
 cd velocity
 
-java -Xmx1024M -Xms1024M -jar server.jar
+java -Xms128m -Xmx384m -jar server.jar
+

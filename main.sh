@@ -28,7 +28,7 @@ else
 fi
 
 
-sed -i 's/${SERVER}/'"$SERVER"'/g' velocity.toml
+
 
 cd plugins
 cd eaglerxserver

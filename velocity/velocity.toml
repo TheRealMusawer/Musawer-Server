@@ -83,7 +83,7 @@ lobby = "fr.mpl.1.overnode.fr:25565"
 
 # In what order we should try servers when a player logs in or is kicked from a server.
 try = [
-    "main"
+    "lobby"
 ]
 
 [forced-hosts]

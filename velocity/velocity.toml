@@ -79,6 +79,7 @@ enable-player-address-logging = true
 # represents the IP address of the server to connect to.
 main = "fr.mpl.2.overnode.fr:25578"
 practice = "fr.mpl.2.overnode.fr:25591"
+lobby = "fr.mpl.1.overnode.fr:25565"
 
 # In what order we should try servers when a player logs in or is kicked from a server.
 try = [
